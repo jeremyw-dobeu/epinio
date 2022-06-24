@@ -14,6 +14,7 @@ import (
 	apierror "github.com/epinio/epinio/pkg/api/core/v1/errors"
 	"github.com/epinio/epinio/pkg/api/core/v1/models"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 )
@@ -49,7 +50,7 @@ func (hc Controller) Update(c *gin.Context) apierror.APIErrors { // nolint:gocyc
 	}
 
 	if updateRequest.Instances != nil && *updateRequest.Instances < 0 {
-		return apierror.NewBadRequest("instances param should be integer equal or greater than zero")
+		return apierror.NewBadRequest(errors.New("instances param should be integer equal or greater than zero"))
 	}
 
 	app, err := application.Lookup(ctx, cluster, namespace, appName)
@@ -73,7 +74,7 @@ func (hc Controller) Update(c *gin.Context) apierror.APIErrors { // nolint:gocyc
 
 	if updateRequest.AppChart != "" && updateRequest.AppChart != app.Configuration.AppChart {
 		if app.Workload != nil {
-			return apierror.NewBadRequest("Unable to change app chart of active application")
+			return apierror.NewBadRequest(errors.New("Unable to change app chart of active application"))
 		}
 
 		found, err := appchart.Exists(ctx, cluster, updateRequest.AppChart)

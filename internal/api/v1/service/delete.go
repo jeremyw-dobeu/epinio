@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -77,7 +78,7 @@ func (ctr Controller) Delete(c *gin.Context) apierror.APIErrors {
 
 	if len(boundAppNames) > 0 {
 		if !deleteRequest.Unbind {
-			return apierror.NewBadRequest("bound applications exist", strings.Join(boundAppNames, ","))
+			return apierror.NewBadRequest(errors.New("bound applications exist"), strings.Join(boundAppNames, ","))
 		}
 
 		username := requestctx.User(ctx).Username

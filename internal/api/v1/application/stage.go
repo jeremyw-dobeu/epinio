@@ -102,13 +102,13 @@ func (hc Controller) Stage(c *gin.Context) apierror.APIErrors {
 
 	req := models.StageRequest{}
 	if err := c.BindJSON(&req); err != nil {
-		return apierror.NewBadRequest("Failed to unmarshal app stage request", err.Error())
+		return apierror.NewBadRequest(errors.Wrap(err, "Failed to unmarshal app stage request"))
 	}
 	if name != req.App.Name {
-		return apierror.NewBadRequest("name parameter from URL does not match name param in body")
+		return apierror.NewBadRequest(errors.New("name parameter from URL does not match name param in body"))
 	}
 	if namespace != req.App.Namespace {
-		return apierror.NewBadRequest("namespace parameter from URL does not match namespace param in body")
+		return apierror.NewBadRequest(errors.New("namespace parameter from URL does not match namespace param in body"))
 	}
 
 	cluster, err := kubernetes.GetCluster(ctx)
@@ -150,7 +150,7 @@ func (hc Controller) Stage(c *gin.Context) apierror.APIErrors {
 		return apierror.InternalError(err)
 	}
 	if staging {
-		return apierror.NewBadRequest("Staging job for image ID still running")
+		return apierror.NewBadRequest(errors.New("Staging job for image ID still running"))
 	}
 
 	s3ConnectionDetails, err := s3manager.GetConnectionDetails(ctx, cluster,
@@ -322,7 +322,7 @@ func validateBlob(ctx context.Context, blobUID string, app models.AppRef, s3Conn
 	}
 	if blobApp != app.Name {
 		return apierror.NewBadRequest(
-			"blob app mismatch",
+			errors.New("blob app mismatch"),
 			"expected: "+app.Name,
 			"found: "+blobApp)
 	}
@@ -333,7 +333,7 @@ func validateBlob(ctx context.Context, blobUID string, app models.AppRef, s3Conn
 	}
 	if blobNamespace != app.Namespace {
 		return apierror.NewBadRequest(
-			"blob namespace mismatch",
+			errors.New("blob namespace mismatch"),
 			"expected: "+app.Namespace,
 			"found: "+blobNamespace)
 	}
@@ -683,7 +683,7 @@ func getBlobUID(ctx context.Context, s3ConnectionDetails s3manager.ConnectionDet
 	}
 
 	if blobUID == "" {
-		returnErr = apierror.NewBadRequest("request didn't provide a blobUID and a previous one doesn't exist")
+		returnErr = apierror.NewBadRequest(errors.New("request didn't provide a blobUID and a previous one doesn't exist"))
 		return "", returnErr
 	}
 

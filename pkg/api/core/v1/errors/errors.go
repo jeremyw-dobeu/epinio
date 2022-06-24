@@ -99,8 +99,8 @@ func BadRequest(err error, details ...string) APIError {
 }
 
 // NewBadRequest constructs an API error for general issues with a request, from a message
-func NewBadRequest(msg string, details ...string) APIError {
-	return NewAPIError(msg, strings.Join(details, ", "), http.StatusBadRequest)
+func NewBadRequest(err error, details ...string) APIError {
+	return NewAPIError(err.Error(), strings.Join(details, ", "), http.StatusBadRequest)
 }
 
 // NewNotFoundError constructs a general API error for when something desired does not exist
@@ -110,10 +110,7 @@ func NewNotFoundError(msg string, details ...string) APIError {
 
 // UserNotFound constructs an API error for when the user name is not found in the header
 func UserNotFound() APIError {
-	return NewAPIError(
-		"User not found in the request header",
-		"",
-		http.StatusBadRequest)
+	return NewBadRequest(fmt.Errorf("User not found in the request header"))
 }
 
 // NamespaceIsNotKnown constructs an API error for when the desired namespace does not exist
@@ -182,10 +179,7 @@ func ConfigurationAlreadyBound(configuration string) APIError {
 
 // ConfigurationIsNotBound constructs an API error for when the configuration to unbind is actually not bound to the app
 func ConfigurationIsNotBound(configuration string) APIError {
-	return NewAPIError(
-		fmt.Sprintf("Configuration '%s' is not bound", configuration),
-		"",
-		http.StatusBadRequest)
+	return NewBadRequest(fmt.Errorf("Configuration '%s' is not bound", configuration))
 }
 
 // AppChartAlreadyKnown constructs an API error for when we have a conflict with an existing app chart

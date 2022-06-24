@@ -1,6 +1,8 @@
 package configuration
 
 import (
+	"errors"
+
 	"github.com/epinio/epinio/helpers/kubernetes"
 	"github.com/epinio/epinio/internal/api/v1/response"
 	"github.com/epinio/epinio/internal/cli/server/requestctx"
@@ -24,11 +26,11 @@ func (sc Controller) Create(c *gin.Context) apierror.APIErrors {
 	}
 
 	if createRequest.Name == "" {
-		return apierror.NewBadRequest("Cannot create configuration without a name")
+		return apierror.NewBadRequest(errors.New("Cannot create configuration without a name"))
 	}
 
 	if len(createRequest.Data) < 1 {
-		return apierror.NewBadRequest("Cannot create configuration without data")
+		return apierror.NewBadRequest(errors.New("Cannot create configuration without data"))
 	}
 
 	cluster, err := kubernetes.GetCluster(ctx)

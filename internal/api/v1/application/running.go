@@ -7,6 +7,7 @@ import (
 	"github.com/epinio/epinio/internal/duration"
 	apierror "github.com/epinio/epinio/pkg/api/core/v1/errors"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 )
 
 // Running handles the API endpoint GET /namespaces/:namespace/applications/:app/running
@@ -36,7 +37,7 @@ func (hc Controller) Running(c *gin.Context) apierror.APIErrors {
 
 	if app.Workload == nil {
 		// While the app exists it has no workload, and therefore no status
-		return apierror.NewBadRequest("No status available for application without workload")
+		return apierror.NewBadRequest(errors.New("No status available for application without workload"))
 	}
 
 	err = cluster.WaitForDeploymentCompleted(

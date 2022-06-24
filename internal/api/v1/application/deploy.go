@@ -11,6 +11,7 @@ import (
 	apierror "github.com/epinio/epinio/pkg/api/core/v1/errors"
 	"github.com/epinio/epinio/pkg/api/core/v1/models"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -29,14 +30,14 @@ func (hc Controller) Deploy(c *gin.Context) apierror.APIErrors {
 
 	req := models.DeployRequest{}
 	if err := c.BindJSON(&req); err != nil {
-		return apierror.NewBadRequest("Failed to unmarshal deploy request ", err.Error())
+		return apierror.NewBadRequest(errors.Wrap(err, "Failed to unmarshal deploy request"))
 	}
 
 	if name != req.App.Name {
-		return apierror.NewBadRequest("name parameter from URL does not match name param in body")
+		return apierror.NewBadRequest(errors.New("name parameter from URL does not match name param in body"))
 	}
 	if namespace != req.App.Namespace {
-		return apierror.NewBadRequest("namespace parameter from URL does not match namespace param in body")
+		return apierror.NewBadRequest(errors.New("namespace parameter from URL does not match namespace param in body"))
 	}
 
 	cluster, err := kubernetes.GetCluster(ctx)
